@@ -1,4 +1,4 @@
-package psp.cajeros.Model;
+package psp.sockets.Servidor.Model;
 
 import lombok.*;
 
@@ -9,7 +9,7 @@ import java.io.Serializable;
 @AllArgsConstructor
 @Getter
 @Setter
-public class Credenciales implements Serializable {
+public class Credentials implements Serializable {
     private String usuario;
     private String contraseña;
 }
