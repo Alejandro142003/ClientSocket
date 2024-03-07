@@ -1,14 +1,12 @@
-package psp.cajeros;
+package psp.sockets.Servidor;
 
-import psp.cajeros.Model.Account;
-import psp.cajeros.Model.Credenciales;
-import psp.cajeros.Model.User;
 
 import java.io.*;
 import java.net.Socket;
-import java.util.List;
 import java.util.Scanner;
 import java.util.Set;
+
+import psp.sockets.Servidor.Model.*;
 
 import static java.util.Objects.hash;
 
@@ -16,7 +14,7 @@ public class Main {
     public static void main(String[] args) {
         try {
             // Establecer conexión con el servidor
-            Socket socket = new Socket("localhost", 12345);
+            Socket socket = new Socket("172.16.16.158", 12345);
 
             // Establecer flujos de entrada y salida
             ObjectOutputStream outputStream = new ObjectOutputStream(socket.getOutputStream());
@@ -33,10 +31,10 @@ public class Main {
             String hashContraseña = String.valueOf(hash(contraseña));
 
             // Crear objeto de credenciales
-            Credenciales credenciales = new Credenciales(nombreUsuario, hashContraseña);
+            Credentials credentials = new Credentials(nombreUsuario, hashContraseña);
 
             // Enviar credenciales al servidor
-            outputStream.writeObject(credenciales);
+            outputStream.writeObject(credentials);
 
             // Recibir respuesta del servidor
             String respuesta = inputStream.readUTF();
@@ -211,11 +209,11 @@ public class Main {
                     String hashContraseña = String.valueOf(hash(contraseña));
 
                     // Crear objeto de credenciales
-                    Credenciales credenciales = new Credenciales(nombreUsuario, hashContraseña);
+                    Credentials credentials = new Credentials(nombreUsuario, hashContraseña);
 
                     // Enviar credenciales al servidor
                     try {
-                        outputStream.writeObject(credenciales);
+                        outputStream.writeObject(credentials);
 
                         // Recibir respuesta del servidor
                         String respuesta = inputStream.readUTF();
@@ -459,11 +457,11 @@ public class Main {
                     String hashContraseña = String.valueOf(hash(contraseña));
 
                     // Crear objeto de credenciales
-                    Credenciales credenciales = new Credenciales(nombreUsuarioo, hashContraseña);
+                    Credentials credentials = new Credentials(nombreUsuarioo, hashContraseña);
 
                     // Enviar credenciales al servidor
                     try {
-                        outputStream.writeObject(credenciales);
+                        outputStream.writeObject(credentials);
 
                         // Recibir respuesta del servidor
                         String respuesta = inputStream.readUTF();

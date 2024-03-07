@@ -1,4 +1,4 @@
-package psp.cajeros.Model;
+package psp.sockets.Servidor.Model;
 
 import lombok.*;
 
