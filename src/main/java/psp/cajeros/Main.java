@@ -68,6 +68,13 @@ public class Main {
         }
     }
 
+    /**
+     * Muestra el menú del cajero y maneja las operaciones asociadas.
+     *
+     * @param usuario       El usuario que realiza la operación.
+     * @param outputStream  El flujo de salida para enviar datos al servidor.
+     * @param inputStream   El flujo de entrada para recibir datos del servidor.
+     */
     private static void mostrarMenuCajero(User usuario, ObjectOutputStream outputStream, ObjectInputStream inputStream) {
         Scanner scanner = new Scanner(System.in);
         int opcion;
@@ -153,7 +160,7 @@ public class Main {
                     float cantidad = scanner.nextFloat();
 
                     // Obtener la cuenta del usuario
-                    Account cuentaParaIngresar = seleccionarCuenta(usuario.getAccounts()); // Suponiendo que usuario es un objeto que tiene una lista de cuentas
+                    Account cuentaParaIngresar = seleccionarCuenta(usuario.getAccounts());
 
                     if (cuentaParaIngresar != null) {
                         // Actualizar el saldo de la cuenta con la cantidad ingresada
@@ -244,6 +251,13 @@ public class Main {
         } while (opcion != 4);
     }
 
+    /**
+     * Muestra el menú del operario y maneja las operaciones asociadas.
+     *
+     * @param usuario       El usuario que realiza la operación.
+     * @param outputStream  El flujo de salida para enviar datos al servidor.
+     * @param inputStream   El flujo de entrada para recibir datos del servidor.
+     */
     private static void mostrarMenuOperario(User usuario, ObjectOutputStream outputStream, ObjectInputStream inputStream) {
         Scanner scanner = new Scanner(System.in);
         int opcion;
@@ -485,6 +499,12 @@ public class Main {
         } while (opcion != 6);
     }
 
+    /**
+     * Permite al usuario seleccionar una cuenta de entre un conjunto de cuentas.
+     *
+     * @param cuentas El conjunto de cuentas disponibles para seleccionar.
+     * @return La cuenta seleccionada por el usuario, o null si la opción no es válida.
+     */
     private static Account seleccionarCuenta(Set<Account> cuentas) {
         Scanner scanner = new Scanner(System.in);
 
