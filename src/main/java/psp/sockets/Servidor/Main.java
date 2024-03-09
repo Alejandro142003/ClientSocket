@@ -1,11 +1,11 @@
 package psp.sockets.Servidor;
 
-
 import java.io.*;
 import java.net.Socket;
 import java.util.Scanner;
 import java.util.Set;
 
+import lombok.Data;
 import psp.sockets.Servidor.Model.*;
 
 import static java.util.Objects.hash;
@@ -14,7 +14,7 @@ public class Main {
     public static void main(String[] args) {
         try {
             // Establecer conexión con el servidor
-            Socket socket = new Socket("192.168.1.14", 12345);
+            Socket socket = new Socket("192.168.18.34", 12345);
 
             // Establecer flujos de entrada y salida
             ObjectOutputStream outputStream = new ObjectOutputStream(socket.getOutputStream());
@@ -79,16 +79,13 @@ public class Main {
             System.out.println("4. Salir");
             System.out.println("Seleccione una opción:");
 
-            opcion = scanner.nextInt();
+            outputStream.writeInt(opcion = scanner.nextInt());
 
             BufferedReader reader = new BufferedReader(new InputStreamReader(System.in));
             switch (opcion) {
                 case 1:
-
-                    outputStream.writeObject(1);
                     // Lógica para ver saldo de la cuenta
                     System.out.println("Opción seleccionada: Ver saldo de la cuenta del cliente");
-
 
                     System.out.println("Ingrese el número de cuenta:");
                     int cuenta = Integer.parseInt(reader.readLine());
@@ -167,7 +164,7 @@ public class Main {
      * @param outputStream  El flujo de salida para enviar datos al servidor.
      * @param inputStream   El flujo de entrada para recibir datos del servidor.
      */
-    private static void mostrarMenuOperario(ObjectOutputStream outputStream, ObjectInputStream inputStream) {
+    private static void mostrarMenuOperario(ObjectOutputStream outputStream, ObjectInputStream inputStream) throws IOException {
         Scanner scanner = new Scanner(System.in);
         int opcion;
         do {
@@ -180,7 +177,7 @@ public class Main {
             System.out.println("6. Salir");
             System.out.println("Seleccione una opción:");
 
-            opcion = scanner.nextInt();
+            outputStream.writeInt(opcion = scanner.nextInt());
 
             switch (opcion) {
                 case 1:
@@ -203,6 +200,7 @@ public class Main {
 
                     try {
                         // Enviar el nuevo usuario al servidor para ser ingresado en el banco
+                        outputStream.writeInt(opcion);
                         outputStream.writeObject(nuevoUsuario);
                         outputStream.flush();
 
@@ -219,7 +217,7 @@ public class Main {
                     System.out.println("Opción seleccionada: Crear una nueva cuenta bancaria");
 
                     // Solicitar al operario que ingrese el número de cuenta
-                    System.out.println("Ingrese el número de cuenta:");
+                    System.out.println("Ingrese el número de la nueva cuenta:");
                     int nuevoNumeroCuenta = scanner.nextInt();
 
                     // Solicitar al operario que ingrese el nombre del usuario para asociar la cuenta
@@ -348,7 +346,6 @@ public class Main {
 
                 case 6:
                     // Opción para salir
-                    // Opción para salir
                     System.out.println("Cerrando sesión...");
 
                     // Limpiar el flujo de entrada
@@ -434,8 +431,4 @@ public class Main {
         System.out.println("Opción no válida. Por favor, seleccione una opción válida.");
         return null;
     }
- //Todos los cambios 
-
-
-    // Add this method
 }
