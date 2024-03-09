@@ -2,6 +2,7 @@ package psp.sockets.Servidor.Model;
 
 import lombok.*;
 
+import java.io.Serializable;
 import java.time.LocalDateTime;
 import java.util.UUID;
 
@@ -11,7 +12,7 @@ import java.util.UUID;
 @ToString
 @Builder
 @EqualsAndHashCode
-public class Transaction {
+public class Transaction implements Serializable {
     private UUID id;
     private String type;
     private float amount;

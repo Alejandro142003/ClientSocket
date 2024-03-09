@@ -14,7 +14,7 @@ public class Main {
     public static void main(String[] args) {
         try {
             // Establecer conexión con el servidor
-            Socket socket = new Socket("172.16.16.158", 12345);
+            Socket socket = new Socket("192.168.1.14", 12345);
 
             // Establecer flujos de entrada y salida
             ObjectOutputStream outputStream = new ObjectOutputStream(socket.getOutputStream());
@@ -27,34 +27,30 @@ public class Main {
             System.out.println("Ingrese su contraseña:");
             String contraseña = reader.readLine();
 
-            // Hash de la contraseña
-            String hashContraseña = String.valueOf(hash(contraseña));
-
             // Crear objeto de credenciales
-            Credentials credentials = new Credentials(nombreUsuario, hashContraseña);
+            Credentials credentials = new Credentials(nombreUsuario, contraseña);
 
             // Enviar credenciales al servidor
             outputStream.writeObject(credentials);
 
             // Recibir respuesta del servidor
-            String respuesta = inputStream.readUTF();
+            Object respuesta = inputStream.readObject();
             System.out.println(respuesta);
 
             // Si la respuesta indica un inicio de sesión exitoso, mostrar el menú correspondiente
             if (respuesta.equals("Inicio de sesión exitoso")) {
                 // Leer el rol del usuario del servidor
-                String rol = inputStream.readUTF();
+                Object rol = inputStream.readObject();
 
-                // Obtener el usuario del servidor
-                User usuario = (User) inputStream.readObject();
+                System.out.println(rol);
 
                 // Mostrar el menú correspondiente según el rol
-                switch (rol) {
-                    case "Cajero":
-                        mostrarMenuCajero(usuario, outputStream, inputStream);
+                switch ((String) rol) {
+                    case "cajero":
+                        mostrarMenuCajero(outputStream, inputStream);
                         break;
-                    case "Operario":
-                        mostrarMenuOperario(usuario, outputStream, inputStream);
+                    case "operario":
+                        mostrarMenuOperario(outputStream, inputStream);
                         break;
                     default:
                         System.out.println("Error: Rol desconocido");
@@ -69,11 +65,10 @@ public class Main {
     /**
      * Muestra el menú del cajero y maneja las operaciones asociadas.
      *
-     * @param usuario       El usuario que realiza la operación.
      * @param outputStream  El flujo de salida para enviar datos al servidor.
      * @param inputStream   El flujo de entrada para recibir datos del servidor.
      */
-    private static void mostrarMenuCajero(User usuario, ObjectOutputStream outputStream, ObjectInputStream inputStream) {
+    private static void mostrarMenuCajero( ObjectOutputStream outputStream, ObjectInputStream inputStream) throws IOException, ClassNotFoundException {
         Scanner scanner = new Scanner(System.in);
         int opcion;
         do {
@@ -86,106 +81,66 @@ public class Main {
 
             opcion = scanner.nextInt();
 
+            BufferedReader reader = new BufferedReader(new InputStreamReader(System.in));
             switch (opcion) {
                 case 1:
+
+                    outputStream.writeObject(1);
                     // Lógica para ver saldo de la cuenta
                     System.out.println("Opción seleccionada: Ver saldo de la cuenta del cliente");
 
-                    // Obtener la cuenta del usuario
-                    Account cuenta = seleccionarCuenta(usuario.getAccounts());
 
-                    if (cuenta != null) {
-                        // Mostrar el saldo de la cuenta
-                        System.out.println("Saldo actual de la cuenta " + cuenta.getId() + ": " + cuenta.getBalance());
-                    } else {
-                        System.out.println("Error al seleccionar la cuenta. No se pudo ver el saldo.");
-                    }
+                    System.out.println("Ingrese el número de cuenta:");
+                    int cuenta = Integer.parseInt(reader.readLine());
+
+                    outputStream.writeObject(cuenta);
+
+                    Object balance = inputStream.readObject();
+                    System.out.println("El saldo de la cuenta es: " + balance);
+
                     break;
 
                 case 2:
+                    outputStream.writeObject(2);
                     // Lógica para sacar dinero de la cuenta
                     System.out.println("Opción seleccionada: Sacar dinero de la cuenta");
 
-                    // Obtener la cuenta del usuario
-                    Account cuentaParaRetirar = seleccionarCuenta(usuario.getAccounts());
+                    System.out.println("Ingrese el número de cuenta:");
+                    int cuentaSacar = Integer.parseInt(reader.readLine());
 
-                    if (cuentaParaRetirar != null) {
-                        // Obtener el saldo actual de la cuenta
-                        float saldoActual = cuentaParaRetirar.getBalance();
+                    outputStream.writeObject(cuentaSacar);
 
-                        // Solicitar al usuario la cantidad de dinero a retirar
-                        System.out.println("Ingrese la cantidad de dinero a retirar:");
-                        float cantidadARetirar = scanner.nextFloat();
+                    System.out.println("Ingrese la cantidad de dinero a retirar:");
+                    int dineroRetirar = Integer.parseInt(reader.readLine());
 
-                        // Verificar si hay suficiente saldo en la cuenta
-                        if (saldoActual >= cantidadARetirar) {
-                            // Restar la cantidad retirada del saldo de la cuenta
-                            cuentaParaRetirar.setBalance(saldoActual - cantidadARetirar);
+                    outputStream.writeObject(dineroRetirar);
 
-                            try {
-                                // Enviar el ID de la cuenta y su nuevo saldo al servidor
-                                outputStream.writeObject(cuentaParaRetirar.getId());
-                                outputStream.writeFloat(cuentaParaRetirar.getBalance());
-                                outputStream.flush();
+                    // Leer la respuesta del servidor
+                    String respuestaServidor = (String) inputStream.readObject();
+                    System.out.println(respuestaServidor);
 
-                                // Recibir confirmación del servidor
-                                String respuestaServidor = inputStream.readUTF();
-                                System.out.println(respuestaServidor);
-
-                                // Si el servidor confirma la actualización, imprimir el nuevo saldo
-                                if (respuestaServidor.equals("Cuenta actualizada correctamente")) {
-                                    System.out.println("Dinero retirado correctamente de la cuenta " + cuentaParaRetirar.getId() + ". Nuevo saldo: " + cuentaParaRetirar.getBalance());
-                                } else {
-                                    System.out.println("Error al actualizar la cuenta en el servidor.");
-                                }
-                            } catch (IOException e) {
-                                e.printStackTrace();
-                            }
-                        } else {
-                            System.out.println("Saldo insuficiente. No se pudo realizar la operación.");
-                        }
-                    } else {
-                        System.out.println("Error al seleccionar la cuenta. No se pudo retirar dinero.");
-                    }
                     break;
 
                 case 3:
+                    outputStream.writeObject(3);
+
                     // Lógica para ingresar dinero en la cuenta
                     System.out.println("Opción seleccionada: Ingresar dinero en la cuenta");
 
-                    // Obtener la cantidad de dinero a ingresar
+                    System.out.println("Ingrese el número de cuenta:");
+                    int cuentaIngresar = Integer.parseInt(reader.readLine());
+
+                    outputStream.writeObject(cuentaIngresar);
+
                     System.out.println("Ingrese la cantidad de dinero a ingresar:");
-                    float cantidad = scanner.nextFloat();
+                    int dineroIngresar = Integer.parseInt(reader.readLine());
 
-                    // Obtener la cuenta del usuario
-                    Account cuentaParaIngresar = seleccionarCuenta(usuario.getAccounts());
+                    outputStream.writeObject(dineroIngresar);
 
-                    if (cuentaParaIngresar != null) {
-                        // Actualizar el saldo de la cuenta con la cantidad ingresada
-                        cuentaParaIngresar.setBalance(cuentaParaIngresar.getBalance() + cantidad);
+                    // Leer la respuesta del servidor
+                    String ServidorIngresar = (String) inputStream.readObject();
+                    System.out.println(ServidorIngresar);
 
-                        try {
-                            // Enviar el ID de la cuenta y su nuevo saldo al servidor
-                            outputStream.writeObject(cuentaParaIngresar.getId());
-                            outputStream.writeFloat(cuentaParaIngresar.getBalance());
-                            outputStream.flush();
-
-                            // Recibir confirmación del servidor
-                            String respuestaServidor = inputStream.readUTF();
-                            System.out.println(respuestaServidor);
-
-                            // Si el servidor confirma la actualización, imprimir el nuevo saldo
-                            if (respuestaServidor.equals("Cuenta actualizada correctamente")) {
-                                System.out.println("Dinero ingresado correctamente en la cuenta " + cuentaParaIngresar.getId() + ". Nuevo saldo: " + cuentaParaIngresar.getBalance());
-                            } else {
-                                System.out.println("Error al actualizar la cuenta en el servidor.");
-                            }
-                        } catch (IOException e) {
-                            e.printStackTrace();
-                        }
-                    } else {
-                        System.out.println("Error al seleccionar la cuenta. No se pudo realizar el ingreso.");
-                    }
                     break;
 
                 case 4:
@@ -198,50 +153,7 @@ public class Main {
                     } catch (IOException e) {
                         e.printStackTrace();
                     }
-
-                    // Volver al inicio de sesión
-                    System.out.println("Ingrese su nombre de usuario:");
-                    String nombreUsuario = scanner.nextLine();
-                    System.out.println("Ingrese su contraseña:");
-                    String contraseña = scanner.nextLine();
-
-                    // Hash de la contraseña
-                    String hashContraseña = String.valueOf(hash(contraseña));
-
-                    // Crear objeto de credenciales
-                    Credentials credentials = new Credentials(nombreUsuario, hashContraseña);
-
-                    // Enviar credenciales al servidor
-                    try {
-                        outputStream.writeObject(credentials);
-
-                        // Recibir respuesta del servidor
-                        String respuesta = inputStream.readUTF();
-                        System.out.println(respuesta);
-
-                        // Si la respuesta indica un inicio de sesión exitoso, mostrar el menú correspondiente
-                        if (respuesta.equals("Inicio de sesión exitoso")) {
-                            // Leer el rol del usuario del servidor
-                            String rol = inputStream.readUTF();
-
-                            // Obtener el usuario del servidor
-                            usuario = (User) inputStream.readObject();
-
-                            // Mostrar el menú correspondiente según el rol
-                            switch (rol) {
-                                case "Cajero":
-                                    mostrarMenuCajero(usuario, outputStream, inputStream);
-                                    break;
-                                case "Operario":
-                                    mostrarMenuOperario(usuario, outputStream, inputStream);
-                                    break;
-                                default:
-                                    System.out.println("Error: Rol desconocido");
-                            }
-                        }
-                    } catch (IOException | ClassNotFoundException e) {
-                        e.printStackTrace();
-                    }
+                    //AÑADIR LIMPIEZA DE FLUJO DE SALIDA
                     break;
                 default:
                     System.out.println("Opción no válida. Por favor, seleccione una opción válida.");
@@ -252,11 +164,10 @@ public class Main {
     /**
      * Muestra el menú del operario y maneja las operaciones asociadas.
      *
-     * @param usuario       El usuario que realiza la operación.
      * @param outputStream  El flujo de salida para enviar datos al servidor.
      * @param inputStream   El flujo de entrada para recibir datos del servidor.
      */
-    private static void mostrarMenuOperario(User usuario, ObjectOutputStream outputStream, ObjectInputStream inputStream) {
+    private static void mostrarMenuOperario(ObjectOutputStream outputStream, ObjectInputStream inputStream) {
         Scanner scanner = new Scanner(System.in);
         int opcion;
         do {
@@ -473,21 +384,21 @@ public class Main {
                             String rol = inputStream.readUTF();
 
                             // Obtener el usuario del servidor
-                            usuario = (User) inputStream.readObject();
+                            //usuario = (User) inputStream.readObject();
 
                             // Mostrar el menú correspondiente según el rol
                             switch (rol) {
                                 case "Cajero":
-                                    mostrarMenuCajero(usuario, outputStream, inputStream);
+                                    //mostrarMenuCajero(outputStream, inputStream);
                                     break;
                                 case "Operario":
-                                    mostrarMenuOperario(usuario, outputStream, inputStream);
+                                    mostrarMenuOperario(outputStream, inputStream);
                                     break;
                                 default:
                                     System.out.println("Error: Rol desconocido");
                             }
                         }
-                    } catch (IOException | ClassNotFoundException e) {
+                    } catch (IOException e) {
                         e.printStackTrace();
                     }
                     break;

@@ -10,6 +10,6 @@ import java.io.Serializable;
 @Getter
 @Setter
 public class Credentials implements Serializable {
-    private String usuario;
-    private String contraseña;
+    private String name;
+    private String password;
 }
