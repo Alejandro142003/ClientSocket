@@ -14,7 +14,7 @@ public class Main {
     public static void main(String[] args) {
         try {
             // Establecer conexión con el servidor
-            Socket socket = new Socket("192.168.18.34", 12345);
+            Socket socket = new Socket("192.168.1.14", 12345);
 
             // Establecer flujos de entrada y salida
             ObjectOutputStream outputStream = new ObjectOutputStream(socket.getOutputStream());
@@ -79,13 +79,16 @@ public class Main {
             System.out.println("4. Salir");
             System.out.println("Seleccione una opción:");
 
-            outputStream.writeInt(opcion = scanner.nextInt());
+            opcion = scanner.nextInt();
 
             BufferedReader reader = new BufferedReader(new InputStreamReader(System.in));
             switch (opcion) {
                 case 1:
+
+                    outputStream.writeObject(1);
                     // Lógica para ver saldo de la cuenta
                     System.out.println("Opción seleccionada: Ver saldo de la cuenta del cliente");
+
 
                     System.out.println("Ingrese el número de cuenta:");
                     int cuenta = Integer.parseInt(reader.readLine());
